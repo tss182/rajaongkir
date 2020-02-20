@@ -5,7 +5,7 @@ import (
 	"github.com/tss182/api"
 )
 
-type Init struct {
+type Rajaongkir struct {
 	Token       string
 	Province    string
 	City        string
@@ -21,9 +21,9 @@ type Init struct {
 }
 type APIResultAddress struct {
 	Rajaongkir struct {
-		Query struct {
-			City string `json:"city"`
-		} `json:"query"`
+		//Query struct {
+		//	City string `json:"city"`
+		//} `json:"query"`
 		Status struct {
 			Code        int    `json:"code"`
 			Description string `json:"description"`
@@ -40,10 +40,11 @@ type APIResultAddress struct {
 	} `json:"rajaongkir"`
 }
 
-func (dt *Init) GetProvince() (APIResultAddress, error) {
+func (dt *Rajaongkir) GetProvince() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
 	apiInit.Url = "https://pro.rajaongkir.com/api/province"
+	apiInit.Data = map[string]interface{}{}
 	if dt.Province != "" {
 		apiInit.Data = map[string]interface{}{"id": dt.Province}
 	}
@@ -63,11 +64,12 @@ func (dt *Init) GetProvince() (APIResultAddress, error) {
 	return r, nil
 }
 
-func (dt *Init) GetCity() (APIResultAddress, error) {
+func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
-	apiInit.Url = "https://pro.rajaongkir.com/api/province"
+	apiInit.Url = "https://pro.rajaongkir.com/api/city"
 	err := apiInit.Do("GET")
+	apiInit.Data = map[string]interface{}{}
 	if dt.Province != "" {
 		apiInit.Data["province"] = dt.Province
 	}
@@ -82,17 +84,20 @@ func (dt *Init) GetCity() (APIResultAddress, error) {
 	if err != nil {
 		return APIResultAddress{}, err
 	}
+	//fmt.Println(apiInit.GetRaw())
+
 	if r.Rajaongkir.Status.Code != 200 {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
 	}
 	return r, nil
 }
 
-func (dt *Init) GetSUbDistrict() (APIResultAddress, error) {
+func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
-	apiInit.Url = "https://pro.rajaongkir.com/api/province"
+	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
 	err := apiInit.Do("GET")
+	apiInit.Data = map[string]interface{}{}
 	if dt.District != "" {
 		apiInit.Data["id"] = dt.District
 	}
@@ -113,7 +118,7 @@ func (dt *Init) GetSUbDistrict() (APIResultAddress, error) {
 	return r, nil
 }
 
-func (dt *Init) GetCost() (APIResultAddress, error) {
+func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
 	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier != "" {
 		return APIResultAddress{}, errors.New("origin, destination, weight and courier is required")
 	}
