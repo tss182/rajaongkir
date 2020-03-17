@@ -6,19 +6,19 @@ import (
 )
 
 type Rajaongkir struct {
-	Token           string
-	Province        string
-	City            string
-	District        string
-	Origin          string
-	Destination     string
-	Weight          int
-	Courier         string
-	Length          int
-	Width           int
-	Height          int
-	Diameter        int
-	DestinationType string
+	Token       string
+	Province    string
+	City        string
+	District    string
+	Origin      string
+	Destination string
+	Weight      int
+	Courier     string
+	Length      int
+	Width       int
+	Height      int
+	Diameter    int
+	TypeOrigin  string
 }
 
 const (
@@ -44,6 +44,15 @@ type APIResultAddress struct {
 			City2           string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
+			Costs           []struct {
+				Service     string `json:"service"`
+				Description string `json:"description"`
+				Cost        []struct {
+					Value int    `json:"value"`
+					Etd   string `json:"etd"`
+					Note  string `json:"note"`
+				} `json:"cost"`
+			} `json:"costs"`
 		} `json:"results"`
 	} `json:"rajaongkir"`
 }
@@ -130,7 +139,7 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 }
 
 func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
-	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier != "" || dt.DestinationType != "" {
+	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier == "" || dt.TypeOrigin == "" {
 		return APIResultAddress{}, errors.New("origin, destination, weight and courier is required")
 	}
 	apiInit := api.Init{}
@@ -138,10 +147,11 @@ func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
 	apiInit.Url = "https://pro.rajaongkir.com/api/cost"
 	apiInit.Data = map[string]interface{}{
 		"origin":          dt.Origin,
-		"destionation":    dt.Destination,
+		"destination":     dt.Destination,
 		"weight":          dt.Weight,
 		"courier":         dt.Courier,
-		"destinationType": dt.DestinationType,
+		"originType":      dt.TypeOrigin,
+		"destinationType": dt.TypeOrigin,
 	}
 
 	err := apiInit.Do("POST")
