@@ -2,7 +2,6 @@ package rajaongkir
 
 import (
 	"errors"
-	"fmt"
 	"github.com/tss182/api"
 )
 
@@ -42,7 +41,7 @@ type APIResultAddress struct {
 			Province        string `json:"province"`
 			CityID          string `json:"city_id"`
 			City            string `json:"city_name"`
-			city            string `json:"city"`
+			City2           string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
 			Code            string `json:"code"`
@@ -72,7 +71,7 @@ type APIResultAddressSingle struct {
 			Province        string `json:"province"`
 			CityID          string `json:"city_id"`
 			City            string `json:"city_name"`
-			city            string `json:"city"`
+			City2           string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
 		} `json:"results"`
@@ -123,7 +122,6 @@ func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 	if err != nil {
 		return APIResultAddress{}, err
 	}
-	//fmt.Println(apiInit.GetRaw())
 
 	if r.Rajaongkir.Status.Code != 200 {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
@@ -144,7 +142,6 @@ func (dt *Rajaongkir) GetSubDistrict() (APIResultAddress, error) {
 	if err != nil {
 		return APIResultAddress{}, err
 	}
-	fmt.Println(apiInit.GetRaw())
 	var r APIResultAddress
 	err = apiInit.Get(&r)
 	if err != nil {
@@ -154,7 +151,7 @@ func (dt *Rajaongkir) GetSubDistrict() (APIResultAddress, error) {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
 	}
 	for i, v := range r.Rajaongkir.Results {
-		r.Rajaongkir.Results[i].City = v.city
+		r.Rajaongkir.Results[i].City = v.City2
 	}
 	return r, nil
 }
@@ -172,7 +169,6 @@ func (dt *Rajaongkir) GetSubDistrictSingle() (APIResultAddressSingle, error) {
 	if err != nil {
 		return APIResultAddressSingle{}, err
 	}
-	fmt.Println(apiInit.GetRaw())
 	var r APIResultAddressSingle
 	err = apiInit.Get(&r)
 	if err != nil {
@@ -181,7 +177,7 @@ func (dt *Rajaongkir) GetSubDistrictSingle() (APIResultAddressSingle, error) {
 	if r.Rajaongkir.Status.Code != 200 {
 		return APIResultAddressSingle{}, errors.New(r.Rajaongkir.Status.Description)
 	}
-	r.Rajaongkir.Results.City = r.Rajaongkir.Results.city
+	r.Rajaongkir.Results.City = r.Rajaongkir.Results.City2
 	return r, nil
 }
 
