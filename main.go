@@ -6,19 +6,26 @@ import (
 )
 
 type Rajaongkir struct {
-	Token       string
-	Province    string
-	City        string
-	District    string
-	Origin      string
-	Destination string
-	Weight      int
-	Courier     string
-	Length      int
-	Width       int
-	Height      int
-	Diameter    int
+	Token           string
+	Province        string
+	City            string
+	District        string
+	Origin          string
+	Destination     string
+	Weight          int
+	Courier         string
+	Length          int
+	Width           int
+	Height          int
+	Diameter        int
+	DestinationType string
 }
+
+const (
+	TypeKec  = "subdistrict"
+	TypeKota = "city"
+)
+
 type APIResultAddress struct {
 	Rajaongkir struct {
 		//Query struct {
@@ -123,19 +130,22 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 }
 
 func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
-	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier != "" {
+	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier != "" || dt.DestinationType != "" {
 		return APIResultAddress{}, errors.New("origin, destination, weight and courier is required")
 	}
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
 	apiInit.Url = "https://pro.rajaongkir.com/api/cost"
-	err := apiInit.Do("GET")
-	//if district != "" {
-	//	apiInit.Data["id"] = district
-	//}
-	//if city != "" {
-	//	apiInit.Data["city"] = city
-	//}
+	apiInit.Data = map[string]interface{}{
+		"origin":          dt.Origin,
+		"destionation":    dt.Destination,
+		"weight":          dt.Weight,
+		"courier":         dt.Courier,
+		"destinationType": dt.DestinationType,
+	}
+
+	err := apiInit.Do("POST")
+
 	if err != nil {
 		return APIResultAddress{}, err
 	}
