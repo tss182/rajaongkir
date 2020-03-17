@@ -2,6 +2,7 @@ package rajaongkir
 
 import (
 	"errors"
+	"fmt"
 	"github.com/tss182/api"
 )
 
@@ -59,6 +60,25 @@ type APIResultAddress struct {
 	} `json:"rajaongkir"`
 }
 
+type APIResultAddressSingle struct {
+	Rajaongkir struct {
+		Status struct {
+			Code        int    `json:"code"`
+			Description string `json:"description"`
+		} `json:"status"`
+		Results struct {
+			SubdistrictID   string `json:"subdistrict_id"`
+			ProvinceID      string `json:"province_id"`
+			Province        string `json:"province"`
+			CityID          string `json:"city_id"`
+			City            string `json:"city_name"`
+			city            string `json:"city"`
+			Type            string `json:"type"`
+			SubdistrictName string `json:"subdistrict_name"`
+		} `json:"results"`
+	} `json:"rajaongkir"`
+}
+
 func (dt *Rajaongkir) GetProvince() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
@@ -111,21 +131,20 @@ func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 	return r, nil
 }
 
-func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
+func (dt *Rajaongkir) GetSubDistrict() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
 	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
 	apiInit.Data = map[string]interface{}{}
-	if dt.District != "" {
-		apiInit.Data["id"] = dt.District
-	}
 	if dt.City != "" {
 		apiInit.Data["city"] = dt.City
 	}
+
 	err := apiInit.Do("GET")
 	if err != nil {
 		return APIResultAddress{}, err
 	}
+	fmt.Println(apiInit.GetRaw())
 	var r APIResultAddress
 	err = apiInit.Get(&r)
 	if err != nil {
@@ -137,6 +156,32 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 	for i, v := range r.Rajaongkir.Results {
 		r.Rajaongkir.Results[i].City = v.city
 	}
+	return r, nil
+}
+
+func (dt *Rajaongkir) GetSubDistrictSingle() (APIResultAddressSingle, error) {
+	apiInit := api.Init{}
+	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
+	apiInit.Data = map[string]interface{}{}
+	if dt.District != "" {
+		apiInit.Data["id"] = dt.District
+	}
+
+	err := apiInit.Do("GET")
+	if err != nil {
+		return APIResultAddressSingle{}, err
+	}
+	fmt.Println(apiInit.GetRaw())
+	var r APIResultAddressSingle
+	err = apiInit.Get(&r)
+	if err != nil {
+		return APIResultAddressSingle{}, err
+	}
+	if r.Rajaongkir.Status.Code != 200 {
+		return APIResultAddressSingle{}, errors.New(r.Rajaongkir.Status.Description)
+	}
+	r.Rajaongkir.Results.City = r.Rajaongkir.Results.city
 	return r, nil
 }
 
