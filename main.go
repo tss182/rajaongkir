@@ -41,7 +41,7 @@ type APIResultAddress struct {
 			Province        string `json:"province"`
 			CityID          string `json:"city_id"`
 			City            string `json:"city_name"`
-			City2           string `json:"city"`
+			city            string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
 			Code            string `json:"code"`
@@ -135,7 +135,7 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
 	}
 	for i, v := range r.Rajaongkir.Results {
-		r.Rajaongkir.Results[i].City = v.City2
+		r.Rajaongkir.Results[i].City = v.city
 	}
 	return r, nil
 }
