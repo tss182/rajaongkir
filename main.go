@@ -33,7 +33,8 @@ type APIResultAddress struct {
 			ProvinceID      string `json:"province_id"`
 			Province        string `json:"province"`
 			CityID          string `json:"city_id"`
-			City            string `json:"city"`
+			City            string `json:"city_name"`
+			City2           string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
 		} `json:"results"`
@@ -68,7 +69,6 @@ func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
 	apiInit.Url = "https://pro.rajaongkir.com/api/city"
-	err := apiInit.Do("GET")
 	apiInit.Data = map[string]interface{}{}
 	if dt.Province != "" {
 		apiInit.Data["province"] = dt.Province
@@ -76,6 +76,7 @@ func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 	if dt.City != "" {
 		apiInit.Data["id"] = dt.City
 	}
+	err := apiInit.Do("GET")
 	if err != nil {
 		return APIResultAddress{}, err
 	}
@@ -96,7 +97,6 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 	apiInit := api.Init{}
 	apiInit.Header = map[string]string{"key": dt.Token}
 	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
-	err := apiInit.Do("GET")
 	apiInit.Data = map[string]interface{}{}
 	if dt.District != "" {
 		apiInit.Data["id"] = dt.District
@@ -104,6 +104,7 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 	if dt.City != "" {
 		apiInit.Data["city"] = dt.City
 	}
+	err := apiInit.Do("GET")
 	if err != nil {
 		return APIResultAddress{}, err
 	}
@@ -114,6 +115,9 @@ func (dt *Rajaongkir) GetSUbDistrict() (APIResultAddress, error) {
 	}
 	if r.Rajaongkir.Status.Code != 200 {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
+	}
+	for i, v := range r.Rajaongkir.Results {
+		r.Rajaongkir.Results[i].City = v.City2
 	}
 	return r, nil
 }
