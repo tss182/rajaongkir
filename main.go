@@ -44,6 +44,8 @@ type APIResultAddress struct {
 			City2           string `json:"city"`
 			Type            string `json:"type"`
 			SubdistrictName string `json:"subdistrict_name"`
+			Code            string `json:"code"`
+			Name            string `json:"name"`
 			Costs           []struct {
 				Service     string `json:"service"`
 				Description string `json:"description"`
