@@ -14,6 +14,7 @@ type Rajaongkir struct {
 	Destination string
 	Weight      int
 	Courier     string
+	Waybill     string
 	Length      int
 	Width       int
 	Height      int
@@ -56,6 +57,65 @@ type APIResultAddress struct {
 				} `json:"cost"`
 			} `json:"costs"`
 		} `json:"results"`
+	} `json:"rajaongkir"`
+}
+
+type APITracking struct {
+	Rajaongkir struct {
+		Query struct {
+			Waybill string `json:"waybill"`
+			Courier string `json:"courier"`
+		} `json:"query"`
+		Status struct {
+			Code        int    `json:"code"`
+			Description string `json:"description"`
+		} `json:"status"`
+		Result struct {
+			Delivered bool `json:"delivered"`
+			Summary   struct {
+				CourierCode   string `json:"courier_code"`
+				CourierName   string `json:"courier_name"`
+				WaybillNumber string `json:"waybill_number"`
+				ServiceCode   string `json:"service_code"`
+				WaybillDate   string `json:"waybill_date"`
+				ShipperName   string `json:"shipper_name"`
+				ReceiverName  string `json:"receiver_name"`
+				Origin        string `json:"origin"`
+				Destination   string `json:"destination"`
+				Status        string `json:"status"`
+			} `json:"summary"`
+			Details struct {
+				WaybillNumber    string      `json:"waybill_number"`
+				WaybillDate      string      `json:"waybill_date"`
+				WaybillTime      string      `json:"waybill_time"`
+				Weight           string      `json:"weight"`
+				Origin           string      `json:"origin"`
+				Destination      string      `json:"destination"`
+				ShippperName     string      `json:"shippper_name"`
+				ShipperAddress1  string      `json:"shipper_address1"`
+				ShipperAddress2  interface{} `json:"shipper_address2"`
+				ShipperAddress3  interface{} `json:"shipper_address3"`
+				ShipperCity      string      `json:"shipper_city"`
+				ReceiverName     string      `json:"receiver_name"`
+				ReceiverAddress1 string      `json:"receiver_address1"`
+				ReceiverAddress2 string      `json:"receiver_address2"`
+				ReceiverAddress3 string      `json:"receiver_address3"`
+				ReceiverCity     string      `json:"receiver_city"`
+			} `json:"details"`
+			DeliveryStatus struct {
+				Status      string `json:"status"`
+				PodReceiver string `json:"pod_receiver"`
+				PodDate     string `json:"pod_date"`
+				PodTime     string `json:"pod_time"`
+			} `json:"delivery_status"`
+			Manifest []struct {
+				ManifestCode        string `json:"manifest_code"`
+				ManifestDescription string `json:"manifest_description"`
+				ManifestDate        string `json:"manifest_date"`
+				ManifestTime        string `json:"manifest_time"`
+				CityName            string `json:"city_name"`
+			} `json:"manifest"`
+		} `json:"result"`
 	} `json:"rajaongkir"`
 }
 
@@ -209,6 +269,34 @@ func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
 	}
 	if r.Rajaongkir.Status.Code != 200 {
 		return APIResultAddress{}, errors.New(r.Rajaongkir.Status.Description)
+	}
+	return r, nil
+}
+
+func (dt *Rajaongkir) Tracking() (APITracking, error) {
+	if dt.Waybill == "" || dt.Courier == "" {
+		return APITracking{}, errors.New("waybill and courier is required")
+	}
+	apiInit := api.Init{}
+	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit.Url = "https://pro.rajaongkir.com/api/waybill"
+	apiInit.Data = map[string]interface{}{
+		"waybill": dt.Waybill,
+		"courier": dt.Courier,
+	}
+
+	err := apiInit.Do("POST")
+
+	if err != nil {
+		return APITracking{}, err
+	}
+	var r APITracking
+	err = apiInit.Get(&r)
+	if err != nil {
+		return APITracking{}, err
+	}
+	if r.Rajaongkir.Status.Code != 200 {
+		return APITracking{}, errors.New(r.Rajaongkir.Status.Description)
 	}
 	return r, nil
 }
