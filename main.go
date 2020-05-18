@@ -2,7 +2,7 @@ package rajaongkir
 
 import (
 	"errors"
-	"github.com/tss182/api"
+	"github.com/tss182/api-go"
 )
 
 type Rajaongkir struct {
@@ -139,14 +139,15 @@ type APIResultAddressSingle struct {
 }
 
 func (dt *Rajaongkir) GetProvince() (APIResultAddress, error) {
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodGET
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/province"
-	apiInit.Data = map[string]interface{}{}
 	if dt.Province != "" {
-		apiInit.Data = map[string]interface{}{"id": dt.Province}
+		apiInit.Body = map[string]interface{}{"id": dt.Province}
 	}
-	err := apiInit.Do("GET")
+	err := apiInit.Do()
 	if err != nil {
 		return APIResultAddress{}, err
 	}
@@ -163,17 +164,20 @@ func (dt *Rajaongkir) GetProvince() (APIResultAddress, error) {
 }
 
 func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodGET
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/city"
-	apiInit.Data = map[string]interface{}{}
+	data := map[string]interface{}{}
 	if dt.Province != "" {
-		apiInit.Data["province"] = dt.Province
+		data["province"] = dt.Province
 	}
 	if dt.City != "" {
-		apiInit.Data["id"] = dt.City
+		data["id"] = dt.City
 	}
-	err := apiInit.Do("GET")
+	apiInit.Body = data
+	err := apiInit.Do()
 	if err != nil {
 		return APIResultAddress{}, err
 	}
@@ -190,15 +194,17 @@ func (dt *Rajaongkir) GetCity() (APIResultAddress, error) {
 }
 
 func (dt *Rajaongkir) GetSubDistrict() (APIResultAddress, error) {
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodGET
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
-	apiInit.Data = map[string]interface{}{}
+	data := map[string]interface{}{}
 	if dt.City != "" {
-		apiInit.Data["city"] = dt.City
+		data["city"] = dt.City
 	}
-
-	err := apiInit.Do("GET")
+	apiInit.Body = data
+	err := apiInit.Do()
 	if err != nil {
 		return APIResultAddress{}, err
 	}
@@ -217,15 +223,17 @@ func (dt *Rajaongkir) GetSubDistrict() (APIResultAddress, error) {
 }
 
 func (dt *Rajaongkir) GetSubDistrictSingle() (APIResultAddressSingle, error) {
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodGET
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/subdistrict"
-	apiInit.Data = map[string]interface{}{}
+	data := map[string]interface{}{}
 	if dt.District != "" {
-		apiInit.Data["id"] = dt.District
+		data["id"] = dt.District
 	}
-
-	err := apiInit.Do("GET")
+	apiInit.Body = data
+	err := apiInit.Do()
 	if err != nil {
 		return APIResultAddressSingle{}, err
 	}
@@ -245,10 +253,12 @@ func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
 	if dt.Origin == "" || dt.Destination == "" || dt.Weight == 0 || dt.Courier == "" || dt.TypeOrigin == "" {
 		return APIResultAddress{}, errors.New("origin, destination, weight and courier is required")
 	}
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodPOST
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/cost"
-	apiInit.Data = map[string]interface{}{
+	apiInit.Body = map[string]interface{}{
 		"origin":          dt.Origin,
 		"destination":     dt.Destination,
 		"weight":          dt.Weight,
@@ -257,7 +267,7 @@ func (dt *Rajaongkir) GetCost() (APIResultAddress, error) {
 		"destinationType": dt.TypeOrigin,
 	}
 
-	err := apiInit.Do("POST")
+	err := apiInit.Do()
 
 	if err != nil {
 		return APIResultAddress{}, err
@@ -277,15 +287,17 @@ func (dt *Rajaongkir) Tracking() (APITracking, error) {
 	if dt.Waybill == "" || dt.Courier == "" {
 		return APITracking{}, errors.New("waybill and courier is required")
 	}
-	apiInit := api.Init{}
-	apiInit.Header = map[string]string{"key": dt.Token}
+	apiInit := api.Api{}
+	apiInit.Method = api.MethodPOST
+	apiInit.ContentType = api.TypeUrlEncode
+	apiInit.HeaderAdd("key", dt.Token)
 	apiInit.Url = "https://pro.rajaongkir.com/api/waybill"
-	apiInit.Data = map[string]interface{}{
+	apiInit.Body = map[string]interface{}{
 		"waybill": dt.Waybill,
 		"courier": dt.Courier,
 	}
 
-	err := apiInit.Do("POST")
+	err := apiInit.Do()
 
 	if err != nil {
 		return APITracking{}, err
